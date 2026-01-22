@@ -16,7 +16,11 @@ export default function App() {
       appId={CONFIG.privyAppId}
       config={{
         appearance: { theme: "dark", accentColor: "#FF6B00" },
-        embeddedWallets: { createOnLogin: "users-without-wallets" },
+        embeddedWallets: {
+          ethereum: {
+            createOnLogin: "users-without-wallets",
+          },
+        },
         defaultChain: baseSepolia,
         supportedChains: [baseSepolia],
         loginMethods: ["twitter", "wallet"],

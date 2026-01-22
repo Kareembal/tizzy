@@ -16,30 +16,64 @@ export function Header() {
   const location = useLocation();
   const [balance, setBalance] = useState("0");
   const [showMenu, setShowMenu] = useState(false);
+  const [ethosProfile, setEthosProfile] = useState<{ username: string; avatarUrl: string } | null>(null);
 
   const wallet = wallets[0];
   const address = wallet?.address;
   const shortAddr = address ? `${address.slice(0,6)}...${address.slice(-4)}` : "";
+  
+  // Use Twitter data from Privy if available, otherwise use Ethos data
+  const twitterUsername = user?.twitter?.username || ethosProfile?.username;
+  const avatarUrl = user?.twitter?.profilePictureUrl || ethosProfile?.avatarUrl;
 
+  // Fetch balance
   useEffect(() => {
     if (address) {
       client.getBalance({ address: address as `0x${string}` }).then((bal) => {
         setBalance(parseFloat(formatEther(bal)).toFixed(4));
-      });
+      }).catch(() => setBalance("0"));
     }
   }, [address]);
+
+  // Fetch Ethos profile by wallet address
+  useEffect(() => {
+    async function fetchEthosProfile() {
+      if (!address || user?.twitter?.username) return; // Skip if already have Twitter data
+      
+      try {
+        const res = await fetch(
+          `${CONFIG.ethos.apiUrl}/user/by-address/${address}`,
+          { headers: { "X-Ethos-Client": CONFIG.ethos.clientHeader } }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (data.username) {
+            setEthosProfile({
+              username: data.username,
+              avatarUrl: data.avatarUrl || "",
+            });
+          }
+        }
+      } catch (e) {
+        console.log("Could not fetch Ethos profile for wallet");
+      }
+    }
+    
+    fetchEthosProfile();
+  }, [address, user?.twitter?.username]);
 
   return (
     <header className="header">
       <div className="header-inner">
         <Link to="/" className="logo">
           <div className="logo-icon">◆</div>
-          <span>TIZZY</span>
+          <span className="logo-text">TIZZY</span>
           <span className="logo-tag">TESTNET</span>
         </Link>
 
         <nav className="nav-links">
-          <Link to="/" className={location.pathname === "/" ? "active" : ""}>MARKETS</Link>
+          <Link to="/" className={location.pathname === "/" ? "active" : ""}>HOME</Link>
+          <Link to="/markets" className={location.pathname === "/markets" ? "active" : ""}>MARKETS</Link>
           {authenticated && (
             <Link to="/admin" className={location.pathname === "/admin" ? "active" : ""}>CREATE</Link>
           )}
@@ -48,16 +82,23 @@ export function Header() {
         {authenticated ? (
           <div className="wallet-area">
             <button className="wallet-btn" onClick={() => setShowMenu(!showMenu)}>
-              <span className="wallet-bal">{balance} ETH</span>
-              <span className="wallet-addr">{shortAddr}</span>
+              {avatarUrl && <img src={avatarUrl} alt="" className="header-avatar"/>}
+              <div className="wallet-info">
+                <span className="wallet-bal">{balance} ETH</span>
+                <span className="wallet-addr">{twitterUsername ? `@${twitterUsername}` : shortAddr}</span>
+              </div>
               <span className="chevron">{showMenu ? "▲" : "▼"}</span>
             </button>
             
             {showMenu && (
               <div className="dropdown">
-                {user?.twitter?.username && (
-                  <div className="dropdown-user">@{user.twitter.username}</div>
-                )}
+                <div className="dropdown-profile">
+                  {avatarUrl && <img src={avatarUrl} alt="" className="dropdown-avatar"/>}
+                  <div>
+                    {twitterUsername && <div className="dropdown-name">@{twitterUsername}</div>}
+                    <div className="dropdown-addr">{shortAddr}</div>
+                  </div>
+                </div>
                 <div className="dropdown-balance">
                   <span>BALANCE</span>
                   <strong>{balance} ETH</strong>

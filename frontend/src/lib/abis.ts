@@ -1,21 +1,123 @@
 export const FACTORY_ABI = [
-  "function createMarket(string,string,string,uint256) returns (address)",
-  "function markets(uint256) view returns (address)",
-  "function marketByTweetId(string) view returns (address)",
-  "function getMarketsCount() view returns (uint256)",
-  "function getMarkets(uint256,uint256) view returns (address[])",
+  {
+    name: "createMarket",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "_tweetId", type: "string" },
+      { name: "_authorUserkey", type: "string" },
+      { name: "_question", type: "string" },
+      { name: "_duration", type: "uint256" }
+    ],
+    outputs: [{ type: "address" }]
+  },
+  {
+    name: "getMarketsCount",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }]
+  },
+  {
+    name: "getMarkets",
+    type: "function",
+    stateMutability: "view",
+    inputs: [
+      { name: "_offset", type: "uint256" },
+      { name: "_limit", type: "uint256" }
+    ],
+    outputs: [{ type: "address[]" }]
+  },
+  {
+    name: "marketByTweetId",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "", type: "string" }],
+    outputs: [{ type: "address" }]
+  }
 ] as const;
 
 export const MARKET_ABI = [
-  "function bet(bool) payable",
-  "function claim()",
-  "function getMarketInfo() view returns (string,string,string,uint8,uint8,uint256,uint256,uint256)",
-  "function getOdds() view returns (uint256,uint256)",
-  "function yesBets(address) view returns (uint256)",
-  "function noBets(address) view returns (uint256)",
-  "function hasClaimed(address) view returns (bool)",
-  "function yesPool() view returns (uint256)",
-  "function noPool() view returns (uint256)",
-  "function status() view returns (uint8)",
-  "function closesAt() view returns (uint256)",
+  {
+    name: "bet",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [{ name: "_isYes", type: "bool" }],
+    outputs: []
+  },
+  {
+    name: "claim",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: []
+  },
+  {
+    name: "getMarketInfo",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      { type: "string" },
+      { type: "string" },
+      { type: "string" },
+      { type: "uint8" },
+      { type: "uint8" },
+      { type: "uint256" },
+      { type: "uint256" },
+      { type: "uint256" }
+    ]
+  },
+  {
+    name: "getOdds",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      { name: "yesOdds", type: "uint256" },
+      { name: "noOdds", type: "uint256" }
+    ]
+  },
+  {
+    name: "yesBets",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ type: "address" }],
+    outputs: [{ type: "uint256" }]
+  },
+  {
+    name: "noBets",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ type: "address" }],
+    outputs: [{ type: "uint256" }]
+  },
+  {
+    name: "yesPool",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }]
+  },
+  {
+    name: "noPool",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }]
+  },
+  {
+    name: "status",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint8" }]
+  },
+  {
+    name: "closesAt",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }]
+  }
 ] as const;

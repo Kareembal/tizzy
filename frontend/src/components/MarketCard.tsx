@@ -4,7 +4,7 @@ import { createPublicClient, createWalletClient, http, parseEther, formatEther, 
 import { baseSepolia } from "viem/chains";
 import { CONFIG } from "../lib/config";
 import { MARKET_ABI } from "../lib/abis";
-import { getScoreByUsername } from "../services/ethos";
+import { getUserByTwitter } from "../services/ethos";
 
 interface Props {
   market: { address: string; tweetId: string; question: string; authorUserkey: string; yesPool: bigint; noPool: bigint; status: number; closesAt: number; };
@@ -19,7 +19,7 @@ export function MarketCard({ market, onUpdate }: Props) {
   const { wallets } = useWallets();
   const [amount, setAmount] = useState("0.001");
   const [loading, setLoading] = useState(false);
-  const [score, setScore] = useState<number | null>(null);
+  const [profile, setProfile] = useState<{ score: number; avatarUrl: string } | null>(null);
   const [time, setTime] = useState("");
   const [side, setSide] = useState<"yes"|"no"|null>(null);
 
@@ -28,7 +28,11 @@ export function MarketCard({ market, onUpdate }: Props) {
   const yesP = total > 0n ? Number((market.yesPool * 100n) / total) : 50;
 
   useEffect(() => {
-    if (user) getScoreByUsername(user).then(d => d && setScore(d.score));
+    if (user) {
+      getUserByTwitter(user).then(p => {
+        if (p) setProfile({ score: p.score, avatarUrl: p.avatarUrl });
+      });
+    }
   }, [user]);
 
   useEffect(() => {
@@ -70,8 +74,9 @@ export function MarketCard({ market, onUpdate }: Props) {
     <div className="card">
       <div className="card-top">
         <div className="author">
-          @{user}
-          {score !== null && <span className="score">{score}</span>}
+          {profile?.avatarUrl && <img src={profile.avatarUrl} alt="" className="author-avatar"/>}
+          <span>@{user}</span>
+          {profile?.score && <span className="score">{profile.score}</span>}
         </div>
         <div className={`status s${market.status}`}>{STATUS[market.status]}</div>
       </div>
@@ -112,14 +117,7 @@ export function MarketCard({ market, onUpdate }: Props) {
           </div>
           {side && (
             <div className="bet-row">
-              <input 
-                type="number" 
-                value={amount} 
-                onChange={e=>setAmount(e.target.value)} 
-                step="0.001" 
-                min="0.0001"
-                placeholder="0.001"
-              />
+              <input type="number" value={amount} onChange={e=>setAmount(e.target.value)} step="0.001" min="0.0001" placeholder="0.001"/>
               <button onClick={bet} disabled={loading} className={`bet-btn ${side}`}>
                 {loading ? "..." : `BET ${side.toUpperCase()}`}
               </button>

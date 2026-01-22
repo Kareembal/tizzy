@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { baseSepolia } from "viem/chains";
 import { CONFIG } from "./lib/config";
 import { Home } from "./pages/Home";
+import { Markets } from "./pages/Markets";
 import { Admin } from "./pages/Admin";
 import "./index.css";
 
@@ -14,7 +15,7 @@ export default function App() {
     <PrivyProvider
       appId={CONFIG.privyAppId}
       config={{
-        appearance: { theme: "dark", accentColor: "#00FF80" },
+        appearance: { theme: "dark", accentColor: "#FF6B00" },
         embeddedWallets: { createOnLogin: "users-without-wallets" },
         defaultChain: baseSepolia,
         supportedChains: [baseSepolia],
@@ -25,6 +26,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/markets" element={<Markets />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
         </BrowserRouter>
